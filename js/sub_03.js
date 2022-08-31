@@ -1,96 +1,80 @@
-import 'regenerator-runtime';
-import axios from 'axios';
-
 (
     function(){
-        const addClickEventListener = (element,isLeft)=>{
-            element.forEach(v=>{
-                v.addEventListener('click',(evt)=>onClick(evt,isLeft));
-            })
-        }
+        let leftIndex = -1;
+        let rightIndex = -1;
+        let isSample = true;
 
-        const onClick = (evt,isLeft)=>{
-            const thisElement = evt.target;
-            const srcValue = thisElement.src;
-            isLeft?inputImgSrc.content_image=srcValue:inputImgSrc.style_image=srcValue;
-        }
-
-        const gettingFileBase64Val = (srcVal)=>{
-            return new Promise((resolve,reject)=>{
-                const tempImg = new Image();
-                tempImg.src = srcVal;
-                tempImg.onload = ()=>{
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = tempImg.width;
-                    tempCanvas.height = tempImg.height;
-                    tempCanvas.getContext('2d').drawImage(tempImg,0,0,tempCanvas.width,tempCanvas.height);
-                    resolve(tempCanvas.toDataURL('image/png'));
-                }
-            })
-        }
-
-        const convertBase64IntoBinary=(base64)=>{
-            const [str,dataType,realData]=base64.split(/[:,]+/);
-            const realDataType = dataType.split(';')[0];
-            const byteData = window.atob(realData);
-            const binaryArr = [];
-            for(let i = 0;i<byteData.length;i++){
-                binaryArr.push(byteData.charCodeAt(i));
-            }
-            return {binaryArr,realDataType};
-        }
-
-        const convertIntoFile = async (srcVal)=>{
-            const base64=await gettingFileBase64Val(srcVal);
-            const {binaryArr,realDataType}=convertBase64IntoBinary(base64);
-            const blob = new Blob([new Uint8Array(binaryArr)],{'type':realDataType});
-            return blob;
-        }
-
-        const changeResultImage=(picture_area,output_Addr)=>{
-            picture_area.style.backgroundImage=`url(\"${output_Addr}\")`;
-        }
-
-        const addPaintEventToBtn = (element)=>{
-            element.addEventListener("click",async(evt)=>{
-                evt.preventDefault();
-                if(inputImgSrc.content_image&&inputImgSrc.style_image){
-                    const content_image_file=await convertIntoFile(inputImgSrc.content_image);
-                    const style_image_file=await convertIntoFile(inputImgSrc.style_image);
-                    const formData = new FormData();
-                    formData.append('content_image',content_image_file);
-                    formData.append('style_image',style_image_file);
-                    console.log(formData);
-                    const headers =  {'context-type':'multipart/form-data'};
-                    const resp = await axios.post("/api",formData,headers);
-                    const {output_key}=resp.data;
-                    const output_Addr = `/static/logs/${output_key}_v1.png`;
-                    const picture_area = document.querySelector('.picture_area');
-                    console.log(picture_area);
-                    console.log(`output_Addr : ${output_Addr}`);
-                    changeResultImage(picture_area,output_Addr);
+        const onClickImageComponent = (evt)=>{
+            const {target:thisElement} = evt;
+            const thisTagName = thisElement.tagName;
+            if(thisTagName==='IMG'){
+                const {isleft,contentindex} = thisElement.dataset;
+                isleft==='1'?leftIndex=parseInt(contentindex):rightIndex=parseInt(contentindex);
+                if(isleft==='0'){
+                    const {issample} = thisElement.dataset;
+                    issample==="1"?isSample=true:isSample=false;
+                    if(clicked_img_element.clicked_input_img_now)clicked_img_element.clicked_input_img_now.classList.remove('clicked');
+                    clicked_img_element.clicked_input_img_prev= clicked_img_element.clicked_input_img_now;
+                    clicked_img_element.clicked_input_img_now=thisElement;
+                    clicked_img_element.clicked_input_img_now.classList.add("clicked");
                 }else{
-                    alert("그림을 선택해 주세요!");
-                    return false;
+                    if(clicked_img_element.clicked_styled_img_now)clicked_img_element.clicked_styled_img_now.classList.remove('clicked');
+                    clicked_img_element.clicked_styled_img_prev= clicked_img_element.clicked_styled_img_now;
+                    clicked_img_element.clicked_styled_img_now=thisElement;
+                    clicked_img_element.clicked_styled_img_now.classList.add("clicked");
                 }
-            })
+            }else{
+                return false;
+            }
+        }
+
+        const onCallingAdoptStyleAPI = (evt)=>{
+            evt.preventDefault();
+            if(!clicked_img_element.clicked_input_img_now||!clicked_img_element.clicked_styled_img_now){
+                return false;
+            }
+            if(isSample){
+                const imageFileName = `content${rightIndex}_stylized.jpg`
+                const styledImgSrc = clicked_img_element.clicked_styled_img_now.src;
+                const styleName = styledImgSrc.slice(styledImgSrc.lastIndexOf("/")+1,styledImgSrc.lastIndexOf("."));
+                
+                const outputSrc = `/img/2_adaptive_style/${styleName}/${imageFileName}`;
+                
+                document.querySelector(".picture_area").style.backgroundImage=`url(${outputSrc})`;
+            }
         }
 
         window.onload=()=>{
-            const upDownLeftImgList = document.querySelectorAll('#updown_left .img_file');
-            const scrollLeftImgList = document.querySelectorAll(`#scroll_left .img_file`);
+            const upDownRightComponent=document.querySelector("#updown_right");
+            const scrollRightComponent=document.querySelector("#scroll_right");
+            const upDownLeftComponent=document.querySelector("#updown_left");
+            const scrollLeftComponent=document.querySelector("#scroll_left");
             
-            addClickEventListener(upDownLeftImgList,true);
-            addClickEventListener(scrollLeftImgList,true);
-
-            const upDownRightImgList = document.querySelectorAll('#updown_right .img_file');
-            const scrollRightImgList = document.querySelectorAll(`#scroll_right .img_file`);
-            
-            addClickEventListener(upDownRightImgList,false);
-            addClickEventListener(scrollRightImgList,false);
+            upDownRightComponent.addEventListener("click",onClickImageComponent);
+            scrollRightComponent.addEventListener("click",onClickImageComponent);
+            upDownLeftComponent.addEventListener("click",onClickImageComponent);
+            scrollLeftComponent.addEventListener("click",onClickImageComponent);
         
-            const painting_btn = document.querySelectorAll('.painting_btn')[0];
-            addPaintEventToBtn(painting_btn);
+            const Painting_Btn = document.querySelector(".painting_btn");
+            Painting_Btn.addEventListener("click",onCallingAdoptStyleAPI)
+        }
+
+        window.onbeforeunload=()=>{
+            const upDownRightComponent=document.querySelector("#updown_right");
+            const scrollRightComponent=document.querySelector("#scroll_right");
+            const upDownLeftComponent=document.querySelector("#updown_left");
+            const scrollLeftComponent=document.querySelector("#scroll_left");
+            const Painting_Btn = document.querySelector(".painting_btn");
+            upDownRightComponent.removeEventListener("click",onClickImageComponent);
+            scrollRightComponent.removeEventListener("click",onClickImageComponent);
+            upDownLeftComponent.removeEventListener("click",onClickImageComponent);
+            scrollLeftComponent.removeEventListener("click",onClickImageComponent);
+            Painting_Btn.removeEventListener("click",onCallingAdoptStyleAPI);
+
+            clicked_img_element.clicked_input_img_now=null;
+            clicked_img_element.clicked_input_img_prev=null;
+            clicked_img_element.clicked_styled_img_now=null;
+            clicked_img_element.clicked_styled_img_prev=null;
         }
     }
 )()

@@ -9,7 +9,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const mode = process.env.NODE_ENV;
 
 const indexEntryFile = path.resolve(__dirname,'index');
-const sub03EntryFile = path.resolve(__dirname+'/js/sub_03');
+const sub02EntryFile = path.resolve(__dirname,'/js/sub_02');
+const sub03EntryFile = path.resolve(__dirname,'/js/sub_03');
+const sub04EntryFile = path.resolve(__dirname+'/js/sub_04');
 
 const outputDir = path.resolve(__dirname,'dist');
 const fs = require('fs');
@@ -25,13 +27,16 @@ const config = {
     mode:mode,
     entry:{
         index:indexEntryFile,
-        sub_03:sub03EntryFile, 
+        sub_02:sub02EntryFile,
+        sub_03:sub03EntryFile,
+        sub_04:sub04EntryFile, 
     },
     resolve:{
         //특정 파일의 변수들을 전역적으로 쓸 수 있게 하기 위해 각 파일에서 불러옴.
         alias:{
             jQuery:path.resolve(__dirname,'./js/jquery'),
             inputImgSrc:path.resolve(__dirname,'./js/global_variables'),
+            clicked_img_element:path.resolve(__dirname,'./js/clicked_img_element')
         },
         extensions:['.js'],
     },
@@ -52,7 +57,7 @@ const config = {
             },
             {
                 test:/\.css$/,
-                use:[mode==='development'?'style-loader':MiniCssExtractPlugin.loader,'css-loader'],
+                use:[MiniCssExtractPlugin.loader,'css-loader'],
             },
         ]
     },
@@ -79,7 +84,7 @@ const config = {
         new HtmlWebpackPlugin({
             filename:'sub_02.html',
             template:sub02HtmlFile,
-            chunks:['index'],
+            chunks:['index','sub_02'],
             minify:{
                 collapseWhitespace:true,
                 removeComments:true,
@@ -92,10 +97,7 @@ const config = {
                 collapseWhitespace:true,
                 removeComments:true,
             },
-            chunks:['index'],
-            excludeChunks:[
-                'sub_03',
-            ],
+            chunks:['index','sub_04'],
         }),
         new HtmlWebpackPlugin({
             filename:'sub_03.html',
@@ -104,16 +106,17 @@ const config = {
                 collapseWhitespace:true,
                 removeComments:true,
             },
-            chunks:['sub_03','index'],
+            chunks:['index','sub_03'],
         }),
-        ...(mode==='production'?[new MiniCssExtractPlugin({
+        new MiniCssExtractPlugin({
             filename:"[name].css"
-        })]:[]),
+        }),
         //위에서 불러온 전역 변수들을 import/require 한 것 처럼 쓸 수 있게 해줌.
         new webpack.ProvidePlugin({
             $:'jQuery',
             jQuery:'jQuery',
-            inputImgSrc:'inputImgSrc'
+            inputImgSrc:'inputImgSrc',
+            clicked_img_element:'clicked_img_element'
         }),
         new CopyWebpackPlugin({
             patterns:[
@@ -134,6 +137,9 @@ const config = {
         })
     ],
     devServer:{
+        allowedHosts:[
+            'painting.aizac.io',
+        ],
         static:[
             {
                 directory:path.join(__dirname,"font/"),
@@ -153,7 +159,7 @@ const config = {
                 watch:true,
             }
         ],
-        port:8083,
+        port:9010,
         host:'localhost',
         open:true,
         proxy:{
@@ -165,7 +171,20 @@ const config = {
                     "/api":"/transfer"
                 }
             },
-            "/static":`http://${process.env.API_URL}:${process.env.API_PORT}`
+            "/generate_art":{
+                target:`http://${process.env.API_URL}:${process.env.GENERATE_ART_PORT}`,
+                secure:false,
+                changeOrigin:true,
+            },
+            "/static/logs":`http://${process.env.API_URL}:${process.env.API_PORT}`,
+            "/static/generated_images":{
+                target:`http://${process.env.API_URL}:${process.env.GENERATE_ART_PORT}`,
+                secure:false,
+                changeOrigin:true,
+                pathRewrite:{
+                    "/static_generate_art":"/static"
+                }
+            }
         }
     }
 }
