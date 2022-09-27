@@ -109,17 +109,22 @@ html,body {height: 100%;}
 }
 .content_flex .picture.frame .painting_btn{background:none;border:1px solid #ccc;width: 8em;border-radius: 5px;height: 4.4em;font-size: 1.7em;color: #fff;padding: 10px;left: calc(50% - 4em);text-align: center;}
 /* .content_flex .picture.frame .painting_btn:hover{background:#fff;color: #000;} */
-.content_flex .picture.frame .p_frame .file_btn{position:absolute;top:50px;left:50px; background:rgba(0,0,0,0.5);padding:5px;cursor:pointer; z-index:201}
+.content_flex .picture.frame .p_frame .file_btn.right{position:absolute;top:50px;right:50px; background:rgba(0,0,0,0.5);padding:5px;cursor:pointer; z-index:201}
+.content_flex .picture.frame .p_frame .file_btn.left{position:absolute;top:50px;left:50px; background:rgba(0,0,0,0.5);padding:5px;cursor:pointer; z-index:201}
+.content_flex .picture.frame .p_frame .download-btn{position:absolute;bottom:50px;right:50px; transform: rotateZ(180deg); background:rgba(0,0,0,0.5);padding:5px;cursor:pointer; z-index:201}
+
 .content_flex .picture.frame .p_frame .file_btn:hover{ background:rgba(0,0,0,0.9);}
-.content_flex .picture.frame .p_frame .file_btn i{font-size:20px; transform:rotate(180deg); color:#fff}
-.content_flex .picture.right{}
+.content_flex .picture.frame .p_frame .file_btn i{font-size:20px; transform:rotate(180deg); color:#fff;}
+.content_flex .picture.frame .p_frame .download-btn:hover{ background:rgba(0,0,0,0.9);}
+.content_flex .picture.frame .p_frame .download-btn i{font-size:20px; transform:rotate(180deg); color:#fff}
+/* .content_flex .picture.right{} */
 
 .mobile_block{display:none}
 .mobile_none{display:block}
 
 
 #updown_left{height: calc(100% - 50px);overflow:hidden!important;width:20%;position:absolute;left:2%;top: 0;background:rgba(0,0,0,0.5);}
-#updown_left .img_file{ width:20vw;height:20vw;font-size:30px;padding:10px 30px 0px 30px;overflow:hidden;opacity:0.6}
+#updown_left .img_file{ width:20vw;font-size:30px;padding:10px 30px 0px 30px;overflow:hidden;opacity:0.6}
 #updown_left .img_file:hover{opacity:1}
 #updown_left .img_file:hover img{border:5px solid #d18100;}
 #updown_left .img_file img.clicked {border:5px solid #d18100;opacity:1;}
@@ -278,8 +283,24 @@ footer .copy_text p{color:#fff}
 .content_flex .picture.frame h3{font-family:'NTF_R';text-align:center;color:#fff;font-size: 11px;}
 .content_flex .picture.frame .p_frame{width: 200px;height: 200px;background-size:contain;padding: 12px;background-color: #fff;margin: 4% auto;display: inline-block;position:relative;}
 .content_flex .picture.frame .painting_btn{background:none;border:1px solid #ccc;width: 150px;border-radius: 5px;height: auto;font-size: 1.2em;color: #fff;padding: 10px;left: calc(50% - 4em);text-align: center;}
-.content_flex .picture.frame .p_frame .file_btn{position:absolute;top: 23px;left: 23px;background:rgba(0,0,0,0.5);padding:5px;cursor:pointer;z-index:201;}
+.content_flex .picture.frame .p_frame .file_btn.right{position:absolute;top:20px;right:20px; background:rgba(0,0,0,0.5);padding:2px;cursor:pointer; z-index:201}
+.content_flex .picture.frame .p_frame .file_btn.left{position:absolute;top:20px;left:20px; background:rgba(0,0,0,0.5);padding:2px;cursor:pointer; z-index:201}
+
+.content_flex .picture.frame .p_frame .file_btn i{
+	font-size:14.5px;
+}
+
+.content_flex .picture.frame .p_frame .download-btn{
+	position:absolute;bottom: 0px;right: 20px;background:rgba(0,0,0,0.5);
+	padding:2px;cursor:pointer;z-index:201;
+}
+
+.content_flex .picture.frame .p_frame .download-btn i{
+	font-size:14.5px;
+}
 .content_flex .picture.frame .p_frame>#file{display:none}
+.content_flex .picture.frame .p_frame>#left-file{display:none}
+
 .mobile_none{display:none}
 .mobile_block{display:block}
 
